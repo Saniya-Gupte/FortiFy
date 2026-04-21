@@ -6,6 +6,7 @@ function getClient() {
   return _client
 }
 const MODEL = process.env.ANTHROPIC_MODEL || 'claude-haiku-4-5-20251001'
+const PDF_MODEL = 'claude-sonnet-4-6'
 
 // Single-turn: used by analyst agent
 export async function chat(systemPrompt: string, userMessage: string): Promise<string> {
@@ -14,6 +15,23 @@ export async function chat(systemPrompt: string, userMessage: string): Promise<s
     max_tokens: 1024,
     system: systemPrompt,
     messages: [{ role: 'user', content: userMessage }],
+  })
+  return (msg.content[0] as { text: string }).text
+}
+
+// PDF document: used by upload-statement route
+export async function chatWithPDF(systemPrompt: string, pdfBase64: string, userMessage: string): Promise<string> {
+  const msg = await client.messages.create({
+    model: PDF_MODEL,
+    max_tokens: 2048,
+    system: systemPrompt,
+    messages: [{
+      role: 'user',
+      content: [
+        { type: 'document', source: { type: 'base64', media_type: 'application/pdf', data: pdfBase64 } } as any,
+        { type: 'text', text: userMessage },
+      ],
+    }],
   })
   return (msg.content[0] as { text: string }).text
 }
