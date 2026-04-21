@@ -21,7 +21,7 @@ export async function chat(systemPrompt: string, userMessage: string): Promise<s
 
 // PDF document: used by upload-statement route
 export async function chatWithPDF(systemPrompt: string, pdfBase64: string, userMessage: string): Promise<string> {
-  const msg = await client.messages.create({
+  const msg = await getClient().messages.create({
     model: PDF_MODEL,
     max_tokens: 2048,
     system: systemPrompt,
